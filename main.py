@@ -1,44 +1,66 @@
-from fastapi import FastAPI
-from pydantic import BaseModel
+from typing import List
 
-app = FastAPI(
-    title="My FastAPI Project",
-    description="A starter FastAPI application",
-    version="0.1.0",
-)
+from fastapi import Depends, FastAPI, HTTPException
+from sqlalchemy.orm import Session
 
+import models
+from database import Base, engine, get_db
+from schemas import UserCreate, UserResponse
 
-# Simple in-memory data store for the example
-items: dict[int, "Item"] = {}
+# App start hote hi database tables bana deta hai
+Base.metadata.create_all(bind=engine)
 
-
-class Item(BaseModel):
-    name: str
-    price: float
-    is_offer: bool | None = None
+app = FastAPI(title="Users API")
 
 
 @app.get("/")
 def read_root():
-    return {"message": "Welcome to FastAPI 🚀"}
+    return {"Hello": "World"}
 
 
-@app.get("/health")
-def health_check():
-    return {"status": "ok"}
+# Saare users laao
+@app.get("/users", response_model=List[UserResponse])
+def get_users(db: Session = Depends(get_db)):
+    return db.query(models.User).all()
 
 
-@app.get("/items")
-def list_items():
-    return items
+# Ek user id se laao
+@app.get("/users/{user_id}", response_model=UserResponse)
+def get_user(user_id: int, db: Session = Depends(get_db)):
+    user = db.query(models.User).filter(models.User.id == user_id).first()
+    if user is None:
+        raise HTTPException(status_code=404, detail="User not found")
+    return user
 
 
-@app.get("/items/{item_id}")
-def read_item(item_id: int):
-    return {"item_id": item_id, "item": items.get(item_id)}
+# Naya user banao (id database khud generate karega)
+@app.post("/users", response_model=UserResponse, status_code=201)
+def create_user(user: UserCreate, db: Session = Depends(get_db)):
+    new_user = models.User(name=user.name)
+    db.add(new_user)
+    db.commit()
+    db.refresh(new_user)
+    return new_user
 
 
-@app.post("/items/{item_id}")
-def create_item(item_id: int, item: Item):
-    items[item_id] = item
-    return {"item_id": item_id, "item": item}
+# User update karo
+@app.put("/users/{user_id}", response_model=UserResponse)
+def update_user(user_id: int, updated_user: UserCreate, db: Session = Depends(get_db)):
+    user = db.query(models.User).filter(models.User.id == user_id).first()
+    if user is None:
+        raise HTTPException(status_code=404, detail="User not found")
+    user.name = updated_user.name
+    db.commit()
+    db.refresh(user)
+    return user
+
+
+# User delete karo
+@app.delete("/users/{user_id}")
+def delete_user(user_id: int, db: Session = Depends(get_db)):
+    user = db.query(models.User).filter(models.User.id == user_id).first()
+    if user is None:
+        raise HTTPException(status_code=404, detail="User not found")
+    db.delete(user)
+    db.commit()
+    return {"message": "User deleted"}

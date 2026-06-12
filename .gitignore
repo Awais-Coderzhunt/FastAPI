@@ -1,16 +1,45 @@
 # Virtual environment
 venv/
 .venv/
+env/
+ENV/
 
 # Python
 __pycache__/
 *.py[cod]
+*$py.class
 *.egg-info/
-.pytest_cache/
+*.egg
+build/
+dist/
+.eggs/
 
-# Environment variables
+# Testing / coverage
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.tox/
+.mypy_cache/
+.ruff_cache/
+
+# Environment variables / secrets
 .env
+.env.*
+!.env.example
+
+# Logs
+*.log
+
+# Databases
+*.db
+*.sqlite3
 
 # IDE
 .vscode/
 .idea/
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db
