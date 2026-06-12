@@ -1,45 +1,37 @@
+# Byte-compiled / optimized / cache
+__pycache__/
+*.py[cod]
+*$py.class
+
 # Virtual environment
 venv/
 .venv/
 env/
 ENV/
 
-# Python
-__pycache__/
-*.py[cod]
-*$py.class
-*.egg-info/
-*.egg
-build/
-dist/
-.eggs/
+# SQLite database
+*.db
+app.db
 
-# Testing / coverage
-.pytest_cache/
-.coverage
-.coverage.*
-htmlcov/
-.tox/
-.mypy_cache/
-.ruff_cache/
-
-# Environment variables / secrets
+# Environment variables
 .env
 .env.*
-!.env.example
 
-# Logs
-*.log
-
-# Databases
-*.db
-*.sqlite3
-
-# IDE
+# IDE / editor
 .vscode/
 .idea/
 *.swp
 
-# OS
+# OS files
 .DS_Store
 Thumbs.db
+
+# Distribution / packaging
+build/
+dist/
+*.egg-info/
+
+# Test / coverage
+.pytest_cache/
+.coverage
+htmlcov/
